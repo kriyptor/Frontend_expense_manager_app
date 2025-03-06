@@ -1,0 +1,130 @@
+.report-container {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 1.5rem;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.filter-section {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 6px;
+  flex-wrap: wrap;
+}
+
+.filter-type, .filter-value {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.filter-type label {
+  font-weight: 500;
+  color: #333;
+}
+
+.filter-type select,
+.filter-value select,
+.filter-value input {
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  min-width: 150px;
+}
+
+.generate-btn {
+  padding: 0.5rem 1rem;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  align-self: flex-end;
+  transition: background-color 0.3s;
+}
+
+.generate-btn:hover {
+  background-color: #45a049;
+}
+
+.table-container {
+  overflow-x: auto;
+  margin-bottom: 1rem;
+}
+
+.expense-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 600px;
+}
+
+.expense-table th,
+.expense-table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.expense-table th {
+  background-color: #f5f5f5;
+  font-weight: 600;
+}
+
+.total-section {
+  text-align: right;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 4px;
+  margin-top: 1rem;
+}
+
+.no-results {
+  text-align: center;
+  padding: 2rem;
+  color: #666;
+  background: #f8f9fa;
+  border-radius: 4px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .report-container {
+    margin: 1rem;
+    padding: 1rem;
+  }
+
+  .filter-section {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .filter-type, .filter-value {
+    width: 100%;
+  }
+
+  .generate-btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .report-container {
+    margin: 0.5rem;
+    padding: 0.75rem;
+  }
+
+  .expense-table th,
+  .expense-table td {
+    padding: 8px;
+    font-size: 0.875rem;
+  }
+
+  .total-section h3 {
+    font-size: 1rem;
+  }
+}

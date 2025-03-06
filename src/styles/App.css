@@ -1,0 +1,7 @@
+.app-container {
+  width: 100%;
+  max-width: 1280px; /* or use 1200px to match your other containers */
+  margin: 0 auto;
+  padding: 2rem;
+  box-sizing: border-box;
+}
