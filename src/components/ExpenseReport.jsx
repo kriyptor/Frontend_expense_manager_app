@@ -1,5 +1,5 @@
 import axios from "axios";
-import React, {  useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Container,
   Row,
@@ -13,32 +13,13 @@ import {
 const ExpenseFilter = () => {
   const [userId, setUserId] = useState("");
 
+  // Fetch userId from localStorage on component mount
   useEffect(() => {
     const storedUserId = localStorage.getItem("userId");
     if (storedUserId) {
       setUserId(storedUserId);
     }
   }, []);
-
-
-  // Dummy expense data (pre-populated for testing)
-  const initialExpenses = [
-    { id: 1, amount: 50, category: "food", description: "Lunch", date: "2023-10-01" },
-    { id: 2, amount: 30, category: "fuel", description: "Gas refill", date: "2023-10-02" },
-    { id: 3, amount: 100, category: "clothes", description: "T-shirt", date: "2023-10-03" },
-    { id: 4, amount: 20, category: "food", description: "Breakfast", date: "2023-10-01" },
-    { id: 5, amount: 80, category: "fuel", description: "Diesel", date: "2023-09-15" },
-    { id: 6, amount: 120, category: "clothes", description: "Shoes", date: "2022-12-25" },
-    { id: 7, amount: 45, category: "food", description: "Dinner", date: "2023-10-05" },
-    { id: 8, amount: 60, category: "fuel", description: "Petrol", date: "2023-09-20" },
-    { id: 9, amount: 200, category: "clothes", description: "Jacket", date: "2022-11-10" },
-    { id: 10, amount: 15, category: "food", description: "Snacks", date: "2023-10-01" },
-    { id: 11, amount: 90, category: "fuel", description: "CNG", date: "2023-08-05" },
-    { id: 12, amount: 75, category: "clothes", description: "Socks", date: "2021-07-15" },
-    { id: 13, amount: 10, category: "food", description: "Coffee", date: "2023-10-02" },
-    { id: 14, amount: 500, category: "fuel", description: "Monthly fuel", date: "2023-01-01" },
-    { id: 15, amount: 300, category: "clothes", description: "Winter coat", date: "2020-12-01" },
-  ];
 
   // State for form inputs
   const [filterType, setFilterType] = useState("daily"); // daily, monthly, yearly
@@ -63,54 +44,91 @@ const ExpenseFilter = () => {
     }
   };
 
+  // Fetch daily expenses
+  const fetchDailyExpenses = async () => {
+    try {
+      const response = await axios.get("http://localhost:4000/expense/user-expense/day", {
+        params: { userId, date: selectedDate },
+      });
+      return response.data.data;
+    } catch (error) {
+      console.error("Error fetching daily expenses:", error);
+      return [];
+    }
+  };
 
-/*************  ✨ Codeium Command ⭐  *************/
-  /**
-   * Fetches all expenses for a given year from the server.
-   *
-   * @return {Promise<Object[]>} A promise that resolves with an array of expense objects.
-   */
-/******  5a25548b-3d59-456a-a550-8501b0ec65e0  *******/
+  // Fetch monthly expenses
+  const fetchMonthlyExpenses = async () => {
+    try {
+      const response = await axios.get("http://localhost:4000/expense/user-expense/month", {
+        params: { userId, month: selectedMonth },
+      });
+      return response.data.data;
+    } catch (error) {
+      console.error("Error fetching monthly expenses:", error);
+      return [];
+    }
+  };
+
+  // Fetch yearly expenses
   const fetchYearlyExpenses = async () => {
     try {
-      const response = await axios.get('http://localhost:4000/expense/user-expense/year', {
-        params: {
-          userId: userId,
-          year: selectedYear
-        }
+      const response = await axios.get("http://localhost:4000/expense/user-expense/year", {
+        params: { userId, year: selectedYear },
       });
-      return response.data;
+      return response.data.data;
     } catch (error) {
-      console.error('Error fetching yearly expenses:', error);
+      console.error("Error fetching yearly expenses:", error);
+      return [];
     }
   };
 
   // Handle form submission
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    let filtered = [];
+    let data = [];
     if (filterType === "daily" && selectedDate) {
-      filtered = initialExpenses.filter((expense) => expense.date === selectedDate);
+      data = await fetchDailyExpenses();
     } else if (filterType === "monthly" && selectedMonth) {
-      filtered = initialExpenses.filter((expense) =>
-        expense.date.startsWith(selectedMonth)
-      );
+      data = await fetchMonthlyExpenses();
     } else if (filterType === "yearly" && selectedYear) {
-      fetchYearlyExpenses();
-      console.log(filtered);
+      data = await fetchYearlyExpenses();
     }
 
-    setFilteredExpenses(filtered);
+    setFilteredExpenses(data);
+  };
+
+  // Handle CSV download
+  const handleDownloadCSV = async () => {
+    try {
+      let url = "";
+      if (filterType === "daily") {
+        url = `http://localhost:4000/expense/download-day-expense?userId=${userId}&date=${selectedDate}`;
+      } else if (filterType === "monthly") {
+        url = `http://localhost:4000/expense/download-month-expense?userId=${userId}&month=${selectedMonth}`;
+      } else if (filterType === "yearly") {
+        url = `http://localhost:4000/expense/download-year-expense?userId=${userId}&year=${selectedYear}`;
+      }
+
+      console.log(selectedMonth)
+      const response = await axios.get(url, { responseType: "blob" });
+
+      // Create a temporary link to trigger the download
+      const urlBlob = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = urlBlob;
+      link.setAttribute("download", `expenses-${filterType}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      console.error("Error downloading CSV:", error);
+    }
   };
 
   // Calculate total expense amount
-  /* const totalExpense = filteredExpenses.reduce(
-    (total, expense) => total + expense.amount,
-    0
-  ); */
-
-
+  const totalExpense = filteredExpenses.reduce((acc, expense) => acc + expense.amount, 0);
 
   return (
     <Container className="mt-5">
@@ -174,45 +192,73 @@ const ExpenseFilter = () => {
             <Button variant="primary" type="submit">
               Apply Filter
             </Button>
+
+            {/* Download CSV Button */}
+            {filteredExpenses.length > 0 && (
+              <Button
+                variant="success"
+                onClick={handleDownloadCSV}
+                style={{ marginLeft: "10px" }}
+              >
+                Download CSV
+              </Button>
+            )}
           </Form>
         </Col>
       </Row>
 
       {/* Display Filtered Expenses */}
-      {filteredExpenses.length > 0 && (
+      {filteredExpenses.length > 0 ? (
         <Row>
           <Col>
             <Alert variant="info">
-              Total Expense Amount: <strong>${totalExpense.toFixed(2)}</strong>
+              Total Expense Amount: <strong>₹{totalExpense.toFixed(2)}</strong>
             </Alert>
-            <Table striped bordered hover responsive>
+
+            {/* Render table based on filter type */}
+            <Table striped bordered hover>
               <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Amount</th>
-                  <th>Category</th>
-                  <th>Description</th>
-                  <th>Date</th>
-                </tr>
+                {filterType === "yearly" ? (
+                  <tr>
+                    <th>Sr.No.</th>
+                    <th>Month</th>
+                    <th>Total Expense</th>
+                  </tr>
+                ) : (
+                  <tr>
+                    <th>Sr.No.</th>
+                    <th>Date</th>
+                    <th>Amount</th>
+                    <th>Category</th>
+                    <th>Description</th>
+                  </tr>
+                )}
               </thead>
               <tbody>
-                {filteredExpenses.map((expense) => (
-                  <tr key={expense.id}>
-                    <td>{expense.id}</td>
-                    <td>${expense.amount.toFixed(2)}</td>
-                    <td>{expense.category}</td>
-                    <td>{expense.description}</td>
-                    <td>{expense.date}</td>
+                {filteredExpenses.map((expense, idx) => (
+                  <tr key={expense.id || idx}>
+                    {filterType === "yearly" ? (
+                      <>
+                        <td>{idx + 1}</td>
+                        <td>{expense.month}</td>
+                        <td>₹{expense.amount}</td>
+                      </>
+                    ) : (
+                      <>
+                        <td>{idx + 1}</td>
+                        <td>{expense.date}</td>
+                        <td>₹{expense.amount}</td>
+                        <td>{expense.category}</td>
+                        <td>{expense.description}</td>
+                      </>
+                    )}
                   </tr>
                 ))}
               </tbody>
             </Table>
           </Col>
         </Row>
-      )}
-
-      {/* No Results Message */}
-      {filteredExpenses.length === 0 && (
+      ) : (
         <Alert variant="warning">No expenses found for the selected criteria.</Alert>
       )}
     </Container>
