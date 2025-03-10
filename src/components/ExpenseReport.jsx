@@ -10,7 +10,7 @@ import {
   Alert,
 } from "react-bootstrap";
 
-const ExpenseFilter = () => {
+const ExpenseFilter = ({ isPremium }) => {
   const [userId, setUserId] = useState("");
 
   // Fetch userId from localStorage on component mount
@@ -194,7 +194,7 @@ const ExpenseFilter = () => {
             </Button>
 
             {/* Download CSV Button */}
-            {filteredExpenses.length > 0 && (
+            {isPremium && filteredExpenses.length > 0 && (
               <Button
                 variant="success"
                 onClick={handleDownloadCSV}

@@ -54,9 +54,8 @@ const AuthComponent = ({ handleLogin }) => {
       return;
     }
 
-    // TODO: Implement actual sign-in logic with backend
+
     try {
-      // Simulated sign-in
       console.log('Sign In Attempt', { email: signInEmail });
 
       const response = await axios.post(`${authEndPoint}/user/sign-in`, {
@@ -64,9 +63,9 @@ const AuthComponent = ({ handleLogin }) => {
         password: signInPassword
       });
 
-      console.log(response.data.data.id)
+      //console.log(response.data)
 
-      handleLogin(response.data.data.id); // Update authentication state in parent
+      handleLogin(response.data.userId); // Update authentication state in parent
       setSuccess('Sign in successful!');
       //navigate('/home'); // Programmatically navigate to home page
     } catch (err) {

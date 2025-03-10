@@ -189,7 +189,11 @@ const HomePage = () => {
                   >
                     <option value="food">Food</option>
                     <option value="fuel">Fuel</option>
-                    <option value="clothes">Clothes</option>
+                    <option value="shopping">Shopping</option>
+                    <option value="movie">Movie</option>
+                    <option value="travel">Travel</option>
+                    <option value="health">Health</option>
+                    <option value="others">Others</option>
                   </Form.Select>
                 </Form.Group>
               </Col>
